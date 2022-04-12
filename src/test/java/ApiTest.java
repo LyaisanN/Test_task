@@ -24,7 +24,7 @@ public class ApiTest {
                 .build();
     }
 
-
+    //позитивный ТК "GET запрос на получение списка юзеров"
     @Test
     public void getUsers(){
 
@@ -37,18 +37,37 @@ public class ApiTest {
 
     }
 
+    //позитивный ТК POST запрос с валидными значениями JSON для создания юзера
     @Test
     public void createUser(){
 
-        String myJson = "{\"username\": \"piupiumeowmeow1204202285885858585\", \"email\": \"piupiumeowmeow59595955@gmail.com\", \"password\": \"hrfhrhrh098716384040948437}";
+        String myJson = "{\"username\": \"TestApiTesting120422\", \"email\": \"TestApiTesting120422@gmail.com\", \"password\": \"TestApiTesting120422}";
         given()
                 .spec(spec)
-                .basePath("/user/create")
-                .contentType("application/json")
+                .basePath("/user/create/")
+                .contentType(ContentType.JSON)
                 .body(myJson)
                 .when().post()
-                .then().statusCode(201)
-                .body("username", equalTo("piupiumeowmeow12042022"));
+                .then()
+                .statusCode(201)
+                .body("username", equalTo("TestApiTesting120422"));
+
+    }
+
+    //позитивный ТК POST запрос с невалидными значениями JSON: с неуникальным значением username
+    @Test
+    public void createUserNonUniqueUsername(){
+
+        String myJson = "{\"username\": \"stan\", \"email\": \"TestApiTesting12042022@gmail.com\", \"password\": \"TestApiTesting12042022}";
+        given()
+                .spec(spec)
+                .basePath("/user/create/")
+                .contentType(ContentType.JSON)
+                .body(myJson)
+                .when().post()
+                .then()
+                .statusCode(400)
+                .body("message", equalTo("This username is taken. Try another."));
 
     }
 }
