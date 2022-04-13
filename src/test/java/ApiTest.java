@@ -54,7 +54,7 @@ public class ApiTest {
 
     }
 
-    //позитивный ТК POST запрос с невалидными значениями JSON: с неуникальным значением username
+    //негативный ТК POST запрос с невалидными значениями JSON: с неуникальным значением username
     @Test
     public void createUserNonUniqueUsername() {
 
