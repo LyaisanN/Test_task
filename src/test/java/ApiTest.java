@@ -1,16 +1,12 @@
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import io.restassured.internal.common.assertion.Assertion;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Assertions;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static io.restassured.RestAssured.given;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.core.IsEqual.equalTo;
 
 public class ApiTest {
 
@@ -28,13 +24,15 @@ public class ApiTest {
     @Test
     public void getUsers(){
 
-        given()
+        Response response = given()
                 .spec(spec)
                 .basePath("/user/get/")
                 .when().get()
-                .then().statusCode(200)
-                .body("[0].username", equalTo("stan"));
+                .then()
+                .extract().response();
 
+        Assertions.assertEquals(200, response.statusCode());
+        Assertions.assertEquals("stan", response.jsonPath().getString("username[0]"));
     }
 
     //позитивный ТК POST запрос с валидными значениями JSON для создания юзера
@@ -42,32 +40,37 @@ public class ApiTest {
     public void createUser(){
 
         String myJson = "{\"username\": \"TestApiTesting120422\", \"email\": \"TestApiTesting120422@gmail.com\", \"password\": \"TestApiTesting120422}";
-        given()
+        Response response = given()
                 .spec(spec)
                 .basePath("/user/create/")
                 .contentType(ContentType.JSON)
                 .body(myJson)
                 .when().post()
                 .then()
-                .statusCode(201)
-                .body("username", equalTo("TestApiTesting120422"));
+                .extract().response();
+
+        Assertions.assertEquals(201, response.statusCode());
+        Assertions.assertEquals("TestApiTesting120422", response.jsonPath().getString("username"));
 
     }
 
     //позитивный ТК POST запрос с невалидными значениями JSON: с неуникальным значением username
     @Test
-    public void createUserNonUniqueUsername(){
+    public void createUserNonUniqueUsername() {
 
         String myJson = "{\"username\": \"stan\", \"email\": \"TestApiTesting12042022@gmail.com\", \"password\": \"TestApiTesting12042022}";
-        given()
+        Response response = given()
                 .spec(spec)
                 .basePath("/user/create/")
                 .contentType(ContentType.JSON)
                 .body(myJson)
                 .when().post()
                 .then()
-                .statusCode(400)
-                .body("message", equalTo("This username is taken. Try another."));
+                .extract().response();
+
+        Assertions.assertEquals(400, response.statusCode());
+        Assertions.assertEquals("This username is taken. Try another.", response.jsonPath().getString("message"));
+
 
     }
 }
